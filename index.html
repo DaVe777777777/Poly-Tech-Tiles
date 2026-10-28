@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poly-Tech-Tiles: Learning Tool for Polynomials</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#4f46e5;--primary-hover:#4338ca;--bg:#f8fafc;--card:#fff;--soft:#f1f5f9;--text:#1e293b;--muted:#64748b;--line:#e2e8f0;--head:#fee2e2;--headline:#fca5a5;--headtext:#991b1b;--ans:#ecfdf5;--ansline:#a7f3d0;--anstext:#064e3b;--screen:#0f172a;--screentext:#38bdf8;--pos1:#3b82f6;--pos2:#1d4ed8;--neg1:#ef4444;--neg2:#b91c1c;--ok:#10b981;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--primary:#818cf8;--primary-hover:#a5b4fc;--bg:#0f1420;--card:#1a2130;--soft:#252d3f;--text:#e6eaf2;--muted:#9aa5b8;--line:#33405a;--head:#4a2327;--headline:#7a3a40;--headtext:#fecaca;--ans:#12302a;--ansline:#1f5a4a;--anstext:#a7f3d0}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100%}
+h1,h2{font-family:'Outfit','Inter',sans-serif}
+.app-header{background:linear-gradient(135deg,#1e1b4b,#312e81 50%,#4338ca);color:#fff;padding:1.5rem 1rem}
+.header-content{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:1rem}
+@media(min-width:768px){.header-content{flex-direction:row;align-items:center;justify-content:space-between}}
+.badge{display:inline-block;background:rgba(255,255,255,.15);color:#c7d2fe;font-size:.75rem;font-weight:600;padding:.25rem .75rem;border-radius:9999px;border:1px solid rgba(255,255,255,.2)}
+.container{max-width:1100px;margin:1.5rem auto;padding:0 1rem;display:flex;flex-direction:column;gap:1.25rem}
+.mode-tabs{display:flex;background:rgba(15,23,42,.4);padding:.25rem;border-radius:12px;align-self:flex-start}
+.tab-btn{background:transparent;border:none;color:#c7d2fe;padding:.5rem 1rem;font:600 .875rem 'Inter',sans-serif;border-radius:8px;cursor:pointer}
+.tab-btn.active{background:#fff;color:#1e1b4b}
+.card{background:var(--card);border-radius:12px;padding:1.25rem;border:1px solid var(--line)}
+.guide{display:flex;flex-direction:column;gap:1rem;font-size:.85rem;color:var(--muted)}
+.guide strong.t{color:var(--text)}
+@media(min-width:768px){.guide{flex-direction:row;align-items:center;justify-content:space-between}}
+.legend{display:flex;align-items:center;gap:1rem;background:var(--soft);padding:.5rem 1rem;border-radius:10px;font-size:.85rem;color:var(--text)}
+.legend div{display:flex;align-items:center;gap:.5rem}
+.controls-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--line)}
+.btn-group{display:flex;gap:.5rem;flex-wrap:wrap}
+.btn{padding:.5rem 1rem;font:600 .85rem 'Inter',sans-serif;border-radius:8px;border:none;cursor:pointer}
+.btn-secondary{background:var(--soft);color:var(--text)}.btn-secondary:hover{filter:brightness(.95)}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-hover)}
+.btn-amber{background:#f59e0b;color:#fff}.btn-emerald{background:var(--ok);color:#fff}
+.btn:focus-visible,input:focus-visible,.tab-btn:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.input-wrapper{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
+@media(min-width:640px){.input-wrapper{flex-direction:row}}
+.input-text{flex:1;padding:.65rem 1rem;border:1px solid var(--line);border-radius:8px;font:1rem monospace;background:var(--bg);color:var(--text)}
+.rendered{background:var(--screen);color:var(--screentext);padding:.85rem;border-radius:8px;text-align:center;font:700 1.25rem monospace;margin-top:.75rem}
+.board-table{background:var(--card);border-radius:12px;border:1px solid var(--line);overflow:hidden}
+.board-header{display:grid;grid-template-columns:repeat(4,1fr);background:var(--head);border-bottom:1px solid var(--headline);text-align:center;padding:.75rem 0;font-weight:700;font-size:1.1rem;color:var(--headtext)}
+.board-header>div{border-right:1px solid var(--headline)}.board-header>div:last-child{border-right:none}
+.row-label{background:var(--soft);padding:.35rem 1rem;font-size:.75rem;font-weight:600;color:var(--muted);display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
+.row-label b{font-family:monospace;color:var(--primary)}
+.grid-row{display:grid;grid-template-columns:repeat(4,1fr);min-height:110px;border-bottom:1px solid var(--line)}
+.grid-cell{padding:.75rem;border-right:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;min-height:100px;transition:background .15s}
+.grid-cell:last-child{border-right:none}
+.grid-cell.drop-ok{background:rgba(79,70,229,.14)}
+.tile{user-select:none;-webkit-user-select:none;touch-action:none;position:relative;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;cursor:grab;box-shadow:0 2px 4px rgba(0,0,0,.15);border-radius:6px;flex:none}
+.tile-x3{width:50px;height:50px;font-size:.95rem}.tile-x2{width:42px;height:42px;font-size:.85rem}.tile-x1{width:34px;height:34px;font-size:.75rem}.tile-x0{width:28px;height:28px;font-size:.7rem}
+.tile-pos{background:linear-gradient(135deg,var(--pos1),var(--pos2))}
+.tile-neg{background:linear-gradient(135deg,var(--neg1),var(--neg2))}
+.tile-neg::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 42%,rgba(0,0,0,.35) 43%,rgba(0,0,0,.35) 57%,transparent 58%);border-radius:inherit;pointer-events:none}
+.tile.lifted{opacity:.25}
+.tile.ghost{position:fixed;z-index:100;pointer-events:none;transform:translate(-50%,-50%) scale(1.15);box-shadow:0 8px 18px rgba(0,0,0,.3);cursor:grabbing}
+.tile.target{outline:3px solid #f59e0b;transform:scale(1.12)}
+.tile.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes cancelPair{50%{transform:scale(1.25) rotate(12deg);opacity:.8}100%{transform:scale(0);opacity:0}}
+.animate-cancel{animation:cancelPair .5s ease forwards}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.animate-pop{animation:popIn .25s ease}
+@media(prefers-reduced-motion:reduce){.animate-cancel{animation:none;opacity:0}.animate-pop,.tile.shake{animation:none}}
+.hint{text-align:center;font-size:.85rem;color:var(--muted);padding:.5rem}
+.board-summary{background:var(--soft);padding:1rem}
+.count-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;text-align:center}
+.count-card{background:var(--card);padding:.5rem;border-radius:8px;border:1px solid var(--line)}
+.count-title{font-size:.7rem;color:var(--muted);font-weight:700}
+.count-val{font-size:1.15rem;font-weight:800;color:var(--primary)}
+.final{margin-top:.75rem;background:var(--ans);border:1px solid var(--ansline);border-radius:10px;padding:.85rem;text-align:center}
+.final small{font-size:.75rem;font-weight:700;color:var(--anstext)}
+.final div{font:800 1.5rem monospace;color:var(--anstext)}
+.quiz-card{display:flex;flex-direction:column;gap:1rem}
+.quiz-header{display:flex;justify-content:space-between;align-items:center}
+.stat{background:var(--soft);padding:.35rem .75rem;border-radius:8px;text-align:center;display:inline-block;margin-left:.4rem}
+.stat span{font-size:.65rem;color:var(--muted);display:block}.stat b{font-size:1rem}
+.feedback{padding:.75rem 1rem;border-radius:8px;text-align:center;font-weight:700}
+.fb-ok{background:#d1fae5;color:#065f46}.fb-bad{background:#fee2e2;color:#991b1b}
+.hidden{display:none!important}
+.board-table.no-cube .c3,#quizTilesContainer.no-cube .c3{display:none}
+.board-table.no-cube .board-header,.board-table.no-cube .grid-row,.board-table.no-cube .count-grid,#quizTilesContainer.no-cube .board-header,#quizTilesContainer.no-cube .grid-row{grid-template-columns:repeat(3,1fr)}
+.input-text.invalid{border-color:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,.2)}
+@media(max-width:480px){.grid-cell{padding:.4rem;gap:4px}.board-header{font-size:.95rem}.count-title{font-size:.6rem}}
+footer{border-top:1px solid var(--line);padding:1.25rem;text-align:center;font-size:.75rem;color:var(--muted);margin-top:2rem}
+</style>
+</head>
+<body>
+<header class="app-header"><div class="header-content">
+  <div><span class="badge">ICT-Based Learning Tool</span>
+  <h1 style="font-size:1.75rem;font-weight:800;margin-top:.2rem">Poly-Tech-Tiles</h1>
+  <p style="font-size:.875rem;color:#c7d2fe">Interactive Digital Algebra Tiles for Polynomial Addition &amp; Subtraction</p></div>
+  <div class="mode-tabs">
+    <button id="modeExplore" class="tab-btn active">Explorer Mode</button>
+    <button id="modePractice" class="tab-btn">Quiz Mode</button>
+  </div>
+</div></header>
+
+<main class="container">
+  <div class="card guide">
+    <p><strong class="t">How it works:</strong> Blue tiles are positive and red slashed tiles are negative. <strong>Drag</strong> a tile onto its opposite tile of the same size to make a zero pair and cancel it. You can also drag tiles to rearrange them within their column.</p>
+    <div class="legend"><div><span class="tile tile-x0 tile-pos">+</span>Positive</div><div><span class="tile tile-x0 tile-neg">-</span>Negative</div></div>
+  </div>
+
+  <div id="explorerSection" style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="card">
+      <div class="controls-header">
+        <h2 style="font-size:1.1rem">Polynomial Expression</h2>
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="bPreset">Preset</button>
+          <button class="btn btn-secondary" id="bAdd">+ Add Random</button>
+          <button class="btn btn-secondary" id="bSub">- Subtract Random</button>
+        </div>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="customExpressionInput" class="input-text" aria-label="Expression" placeholder="(2x^3 + 6x^2 - 3x + 2) + (x^3 + 4x^2 + 5x - 5)">
+        <button class="btn btn-primary" id="bBuild">Build Tiles</button>
+        <button class="btn btn-amber" id="bZero">Cancel Zero Pairs</button>
+      </div>
+      <div id="inputError" class="hidden feedback fb-bad" role="alert" style="margin-top:.75rem"></div>
+      <div class="rendered" id="renderedProblem"></div>
+    </div>
+
+    <div class="board-table" id="board">
+      <div class="board-header"><div class="c3"><i>x³</i></div><div><i>x²</i></div><div><i>x</i></div><div><i>C</i></div></div>
+      <div class="row-label"><span>First Polynomial</span><b id="poly1Label"></b></div>
+      <div class="grid-row"><div id="row1-x3" class="grid-cell c3"></div><div id="row1-x2" class="grid-cell"></div><div id="row1-x1" class="grid-cell"></div><div id="row1-x0" class="grid-cell"></div></div>
+      <div class="row-label"><span>Second Polynomial <span id="opLabel"></span></span><b id="poly2Label"></b></div>
+      <div class="grid-row"><div id="row2-x3" class="grid-cell c3"></div><div id="row2-x2" class="grid-cell"></div><div id="row2-x1" class="grid-cell"></div><div id="row2-x0" class="grid-cell"></div></div>
+      <div class="hint" id="hint">Drag a tile onto its opposite tile to cancel them.</div>
+      <div class="board-summary">
+        <div class="count-grid">
+          <div class="count-card c3"><div class="count-title">x³ Remaining</div><div id="count-x3" class="count-val">0</div></div>
+          <div class="count-card"><div class="count-title">x² Remaining</div><div id="count-x2" class="count-val">0</div></div>
+          <div class="count-card"><div class="count-title">x Remaining</div><div id="count-x1" class="count-val">0</div></div>
+          <div class="count-card"><div class="count-title">C Remaining</div><div id="count-x0" class="count-val">0</div></div>
+        </div>
+        <div class="final"><small>Final Simplified Expression</small><div id="finalAnswerDisplay"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="practiceSection" class="hidden">
+    <div class="card quiz-card">
+      <div class="quiz-header">
+        <h2 style="font-size:1.25rem">Test Your Skills</h2>
+        <div><span class="stat"><span>Score</span><b id="quizScore">0</b></span><span class="stat"><span>Streak</span><b id="quizStreak">0</b></span></div>
+      </div>
+      <div style="background:var(--screen);padding:1.5rem;border-radius:10px;text-align:center">
+        <div style="font-size:.75rem;color:#94a3b8;margin-bottom:.5rem">Simplify the following:</div>
+        <div id="quizQuestionText" style="font:800 1.5rem monospace;color:var(--screentext)"></div>
+      </div>
+      <div style="border:1px solid var(--line);border-radius:8px;padding:.75rem;background:var(--soft)">
+        <button class="btn btn-secondary" id="bAid" style="background:var(--card)">Show Tile Visual Aid</button>
+        <div id="quizTilesContainer" class="hidden" style="margin-top:.5rem">
+          <div class="board-header" style="font-size:.85rem;padding:.35rem 0"><div class="c3">x³</div><div>x²</div><div>x</div><div>C</div></div>
+          <div id="quizTileBoard" class="grid-row" style="background:var(--card);min-height:80px"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <input type="text" id="quizAnswerInput" class="input-text" aria-label="Answer" placeholder="e.g. 2x^3 + 5x^2 + 3x - 2">
+        <button class="btn btn-emerald" id="bSubmit">Submit Answer</button>
+        <button class="btn btn-secondary" id="bNext">Skip / Next</button>
+      </div>
+      <div id="quizFeedback" class="hidden feedback"></div>
+    </div>
+  </div>
+</main>
+<footer>Poly-Tech-Tiles — Interactive Learning Tool for Secondary Mathematics</footer>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var K=['x3','x2','x1','x0'];
+var P1={x3:2,x2:6,x1:-3,x0:2},P2={x3:1,x2:4,x1:5,x0:-5},isAdd=true,quiz=null,score=0,streak=0,drag=null;
+var AC=null;
+function beep(f1,f2,d,type){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type=type||'sine';o.connect(g);g.connect(AC.destination);o.frequency.setValueAtTime(f1,n);o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(.1,n);g.gain.exponentialRampToValueAtTime(.01,n+d);o.start(n);o.stop(n+d)}catch(e){}}
+var snd={click:function(){beep(400,380,.05)},cancel:function(){beep(523,880,.2,'triangle')},correct:function(){beep(523,990,.35)},wrong:function(){beep(220,160,.3,'sawtooth')}};
+
+function fmt(p){var s="";
+ function add(c,v){if(!c)return;var a=Math.abs(c),b=(a===1&&v?"":a)+v;s+=s?(c<0?" - ":" + ")+b:(c<0?"-":"")+b}
+ add(p.x3,"x³");add(p.x2,"x²");add(p.x1,"x");add(p.x0,"");return s||"0"}
+
+function parsePoly(str){var r={x3:0,x2:0,x1:0,x0:0};
+ str.replace(/\s+/g,'').replace(/-/g,'+-').split('+').filter(Boolean).forEach(function(t){
+  var k=/x\^3|x³/.test(t)?'x3':/x\^2|x²/.test(t)?'x2':t.indexOf('x')>-1?'x1':'x0';
+  var c=t.replace(/x\^3|x³|x\^2|x²|x/g,'');if(c===''||c==='+')c='1';if(c==='-')c='-1';
+  r[k]+=parseInt(c,10)||0});return r}
+
+var TERM=/^-?(\d*x(\^[23]|[²³])?|\d+)$/;
+function checkPoly(s,name){var n=s.replace(/\s+/g,'');
+ if(!n)return "The "+name+" polynomial is empty. Type at least one term, like 3x^2 or 5.";
+ if(/\d\s+\d/.test(s))return "Remove the space between the numbers in the "+name+" polynomial.";
+ if(/[+-]$|[+-]{2,}/.test(n))return "Check the + and - signs in the "+name+" polynomial. Each sign must sit between two terms.";
+ var bad=n.replace(/-/g,'+-').split('+').filter(Boolean).filter(function(t){return !TERM.test(t)})[0];
+ if(bad)return "\""+bad.replace(/^-/,'')+"\" in the "+name+" polynomial is not a valid term. Use forms like 3x^2, -x or 5, with powers up to x^3.";
+ return null}
+function validate(v){
+ if(!v)return "Type an expression first, like (2x^3 + 6x^2 - 3x + 2) + (x^3 + 4x^2 + 5x - 5).";
+ var m=v.match(/^\(([^()]*)\)\s*([+-])\s*\(([^()]*)\)$/);
+ if(!m)return "Invalid format. Write two polynomials in parentheses joined by + or -, like (6x^2 - 3x + 2) + (4x^2 + 5x - 5).";
+ var e=checkPoly(m[1],"first")||checkPoly(m[3],"second");if(e)return e;
+ var a=parsePoly(m[1]),b=parsePoly(m[3]);
+ for(var i=0;i<K.length;i++)if(Math.abs(a[K[i]])>12||Math.abs(b[K[i]])>12)return "A coefficient is too large. Keep each coefficient between -12 and 12 so the tiles fit on the board.";
+ return null}
+function showError(msg){var e=$('inputError'),i=$('customExpressionInput');
+ if(msg){e.textContent=msg;e.classList.remove('hidden');i.classList.add('invalid');i.setAttribute('aria-invalid','true');snd.wrong()}
+ else{e.classList.add('hidden');i.classList.remove('invalid');i.removeAttribute('aria-invalid')}}
+function parseInput(){var v=$('customExpressionInput').value.trim(),err=validate(v);
+ showError(err);if(err)return;
+ var m=v.match(/^\(([^()]*)\)\s*([+-])\s*\(([^()]*)\)$/);
+ isAdd=m[2]==='+';P1=parsePoly(m[1]);P2=parsePoly(m[3]);render();snd.click()}
+
+function render(){
+ ['row1-x3','row1-x2','row1-x1','row1-x0','row2-x3','row2-x2','row2-x1','row2-x0'].forEach(function(id){var e=$(id);e.innerHTML='';e.dataset.power=id.slice(5)});
+ $('poly1Label').textContent=fmt(P1);$('poly2Label').textContent=fmt(P2);
+ $('board').classList.toggle('no-cube',!(P1.x3||P2.x3));$('opLabel').textContent=isAdd?"(Added)":"(Subtracted: signs flipped)";
+ $('renderedProblem').textContent="("+fmt(P1)+") "+(isAdd?"+":"-")+" ("+fmt(P2)+")";
+ var s=isAdd?1:-1;
+ K.forEach(function(k){make('row1-'+k,P1[k],k);make('row2-'+k,P2[k]*s,k)});
+ $('hint').textContent="Drag a tile onto its opposite tile to cancel them.";
+ update()}
+
+function make(id,n,k){var box=$(id),pos=n>=0;
+ for(var i=0;i<Math.abs(n);i++){var t=document.createElement('div');
+  t.className='tile '+(pos?'tile-pos':'tile-neg')+' tile-'+k+' animate-pop';
+  t.dataset.value=pos?1:-1;t.dataset.power=k;t.textContent=pos?'+':'-';
+  t.addEventListener('pointerdown',down);box.appendChild(t)}}
+
+function clearMarks(){document.querySelectorAll('.drop-ok,.target').forEach(function(e){e.classList.remove('drop-ok','target')})}
+function down(e){if(drag||e.button>0)return;e.preventDefault();var t=e.currentTarget;
+ var g=t.cloneNode(true);g.classList.add('ghost');g.classList.remove('animate-pop');document.body.appendChild(g);
+ t.classList.add('lifted');drag={t:t,g:g,id:e.pointerId};
+ try{t.setPointerCapture(e.pointerId)}catch(_){}
+ t.addEventListener('pointermove',move);t.addEventListener('pointerup',up);t.addEventListener('pointercancel',up);
+ move(e);snd.click()}
+function under(x,y){var el=document.elementFromPoint(x,y);if(!el)return{};
+ var o=el.closest('.tile');if(o===drag.t)o=null;
+ return{tile:o,cell:el.closest('.grid-cell[data-power]')}}
+function move(e){if(!drag)return;drag.g.style.left=e.clientX+'px';drag.g.style.top=e.clientY+'px';
+ clearMarks();var u=under(e.clientX,e.clientY),p=drag.t.dataset.power;
+ if(u.tile&&u.tile.dataset.power===p&&+u.tile.dataset.value+ +drag.t.dataset.value===0)u.tile.classList.add('target');
+ else if(u.cell&&u.cell.dataset.power===p)u.cell.classList.add('drop-ok')}
+function up(e){if(!drag)return;var t=drag.t;
+ t.removeEventListener('pointermove',move);t.removeEventListener('pointerup',up);t.removeEventListener('pointercancel',up);
+ var u=under(e.clientX,e.clientY),p=t.dataset.power;
+ drag.g.remove();clearMarks();t.classList.remove('lifted');drag=null;
+ if(u.tile){
+  if(u.tile.dataset.power===p&&+u.tile.dataset.value+ +t.dataset.value===0){cancelPair(t,u.tile);return}
+  bad(t,u.tile.dataset.power!==p?"Tiles only combine with the same size. Match x³ with x³, x² with x², x with x, and 1 with 1.":"Those have the same sign. Drag onto a tile of the opposite color to cancel.");return}
+ if(u.cell){
+  if(u.cell.dataset.power===p){u.cell.appendChild(t);return}
+  bad(t,"That column is for a different term. Drop tiles in their own column.");return}
+}
+function bad(t,msg){snd.wrong();$('hint').textContent=msg;t.classList.remove('shake');void t.offsetWidth;t.classList.add('shake')}
+
+function cancelPair(a,b){snd.cancel();a.classList.add('animate-cancel');b.classList.add('animate-cancel');
+ a.style.pointerEvents=b.style.pointerEvents='none';$('hint').textContent="Zero pair! They cancel out.";
+ setTimeout(function(){a.remove();b.remove();update()},450)}
+
+function autoCancel(){var any=false;
+ K.forEach(function(k){var all=[].slice.call(document.querySelectorAll('.board-table .tile[data-power="'+k+'"]:not(.animate-cancel)'));
+  var ps=all.filter(function(t){return t.dataset.value==="1"}),ns=all.filter(function(t){return t.dataset.value==="-1"});
+  for(var i=0;i<Math.min(ps.length,ns.length);i++){any=true;(function(p,n,i){setTimeout(function(){p.classList.add('animate-cancel');n.classList.add('animate-cancel')},i*120);setTimeout(function(){p.remove();n.remove();update()},i*120+450)})(ps[i],ns[i],i)}});
+ if(any)snd.cancel()}
+
+function update(){var tot={x3:0,x2:0,x1:0,x0:0};
+ K.forEach(function(k){document.querySelectorAll('.board-table .tile[data-power="'+k+'"]').forEach(function(t){if(!t.classList.contains('animate-cancel'))tot[k]+=+t.dataset.value});$('count-'+k).textContent=tot[k]});
+ $('finalAnswerDisplay').textContent=fmt(tot)}
+
+function rnd(){return Math.floor(Math.random()*9)-4}
+function random(add){var cube=Math.random()>.5,a={x3:cube?(rnd()||2):0,x2:rnd()||3,x1:rnd(),x0:rnd()},b={x3:cube?(rnd()||1):0,x2:rnd()||2,x1:rnd(),x0:rnd()};
+ showError(null);isAdd=add;P1=a;P2=b;$('customExpressionInput').value="("+fmt(a)+") "+(add?"+":"-")+" ("+fmt(b)+")";render();snd.click()}
+
+function mode(m){snd.click();var ex=m==='explore';
+ $('modeExplore').classList.toggle('active',ex);$('modePractice').classList.toggle('active',!ex);
+ $('explorerSection').classList.toggle('hidden',!ex);$('practiceSection').classList.toggle('hidden',ex);
+ if(!ex)nextQ()}
+
+function nextQ(){var r=function(){return Math.floor(Math.random()*7)-3},add=Math.random()>.5,cube=Math.random()>.5,a={x3:cube?r():0,x2:r(),x1:r(),x0:r()},b={x3:cube?r():0,x2:r(),x1:r(),x0:r()},s=add?1:-1;
+ var res={};K.forEach(function(k){res[k]=a[k]+s*b[k]});
+ quiz={ans:fmt(res).replace(/\s+/g,'').toLowerCase()};
+ $('quizQuestionText').textContent="("+fmt(a)+") "+(add?"+":"-")+" ("+fmt(b)+")";
+ $('quizAnswerInput').value='';$('quizFeedback').className='hidden feedback';
+ var bd=$('quizTileBoard');bd.innerHTML='';$('quizTilesContainer').classList.toggle('no-cube',!(a.x3||b.x3));
+ K.forEach(function(k){var c=document.createElement('div');c.className='grid-cell'+(k==='x3'?' c3':'');
+  [a[k],b[k]*s].forEach(function(n){for(var i=0;i<Math.abs(n);i++){var t=document.createElement('div');t.className='tile tile-x0 '+(n>=0?'tile-pos':'tile-neg');t.style.cursor='default';t.textContent=n>=0?'+':'-';c.appendChild(t)}});bd.appendChild(c)})}
+
+function check(){var v=$('quizAnswerInput').value.replace(/\s+/g,'').replace(/\^3/g,'³').replace(/\^2/g,'²').toLowerCase(),f=$('quizFeedback');if(!v)return;
+ f.classList.remove('hidden');
+ if(v===quiz.ans){snd.correct();score+=10;streak++;f.className='feedback fb-ok';f.textContent="Correct! Great job simplifying.";setTimeout(nextQ,1500)}
+ else{snd.wrong();streak=0;f.className='feedback fb-bad';f.textContent="Not quite. The answer is: "+quiz.ans}
+ $('quizScore').textContent=score;$('quizStreak').textContent=streak}
+
+$('modeExplore').onclick=function(){mode('explore')};$('modePractice').onclick=function(){mode('practice')};
+$('bPreset').onclick=function(){$('customExpressionInput').value="(2x^3 + 6x^2 - 3x + 2) + (x^3 + 4x^2 + 5x - 5)";parseInput()};
+$('bAdd').onclick=function(){random(true)};$('bSub').onclick=function(){random(false)};
+$('bBuild').onclick=parseInput;$('bZero').onclick=autoCancel;
+$('customExpressionInput').onkeydown=function(e){if(e.key==='Enter')parseInput()};
+$('bAid').onclick=function(){var c=$('quizTilesContainer');c.classList.toggle('hidden');this.textContent=c.classList.contains('hidden')?"Show Tile Visual Aid":"Hide Tile Visual Aid"};
+$('bSubmit').onclick=check;$('bNext').onclick=nextQ;
+$('quizAnswerInput').onkeydown=function(e){if(e.key==='Enter')check()};
+$('customExpressionInput').oninput=function(){showError(null)};
+$('bPreset').click();
+})();
+</script>
+</body>
+</html>
